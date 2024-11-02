@@ -48,7 +48,7 @@ export const login= async(req,res)=>{
 
 
         //3 day expiry
-        // const age=1000*60*60*24*3;
+        const age=1000*60*60*24*3;
         // res.cookie("test2","myValue2",{
         //     httpOnly:true,
         //     //remeber to uncomment while in production
@@ -57,14 +57,26 @@ export const login= async(req,res)=>{
         // }).status(200).json({message:"Login Successful!"});
         //but it's better to use jwt tokens
 
+        const token=jwt.sign({
+            id:user.id
+        },process.env.JWT_SECRET_KEY,{expiresIn: age})
+
+        res.cookie("token",token,{
+            httpOnly:true,
+            //remeber to uncomment while in production
+            // secure:true
+            maxAge:age
+        }).status(200).json({message:"Login Successful!"});
+
+
     }catch(err){
         console.log(err);
 
-        res.status(500).json({message:"Failed to login"});
-        
+        res.status(500).json({message:"Failed to login"});   
     }
 
 }
 export const logout= (req,res)=>{
+    res.clearCookie("token").status(200).json({message:"Logout successful"});
 
 }
