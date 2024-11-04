@@ -61,12 +61,13 @@ export const login= async(req,res)=>{
             id:user.id
         },process.env.JWT_SECRET_KEY,{expiresIn: age})
 
+        const {password: userPassword, ...userInfo}= user;
         res.cookie("token",token,{
             httpOnly:true,
             //remeber to uncomment while in production
             // secure:true
             maxAge:age
-        }).status(200).json({message:"Login Successful!"});
+        }).status(200).json(userInfo);
 
 
     }catch(err){
