@@ -14,6 +14,7 @@ app.use(cookieParser())
 app.use("/api/posts",postRoute);
 app.use("/api/auth",authRoute);
 
+// nodemon --env-file .env .\app.js
 
 
 app.listen(3001,()=>{
