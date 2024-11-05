@@ -3,7 +3,7 @@ import { shouldBeAdmin, shouldBeLoggedIn } from "../controllers/test.js";
 
 const router= express.Router();
 
-router.get("/should-be-logged-in", shouldBeLoggedIn)
-router.get("/should-be-admin",shouldBeAdmin)
+router.post("/should-be-logged-in", shouldBeLoggedIn)
+router.post("/should-be-admin",shouldBeAdmin)
 
 export default router;
