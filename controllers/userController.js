@@ -1,4 +1,5 @@
 import prisma from "../lib/prisma.js";
+import bcrypt from "bcrypt"
 
 export const getUsers= async (req,res)=>{
     try{
@@ -28,33 +29,60 @@ export const getUser = async (req, res) => {
     }
 };
 
-export const updateUser= async (req,res)=>{
+export const updateUser = async (req, res) => {
+    const id = req.params.id;
+    const tokenUserId = req.userId;
+    const {password, avatar, ...inputs} = req.body;
+
+    // Immediately return if not authorized
+    if (id !== tokenUserId) {
+        return res.status(403).json({message: "Not Authorized!"});
+    }
+
+    try {
+        // Hash password if provided
+        const updatedPassword = password 
+            ? await bcrypt.hash(password, 10) 
+            : null;
+
+        // Prepare update data
+        const updateData = {
+            ...inputs,
+            ...(updatedPassword && {password: updatedPassword}),
+            ...(avatar && {avatar}),
+        };
+
+        // Perform update
+        const updatedUser = await prisma.user.update({
+            where: {id},
+            data: updateData
+        });
+
+        // Destructure to remove sensitive data
+        const {password: userPassword, ...safeUserData} = updatedUser;
+        
+        // Send SINGLE response
+        return res.status(200).json(safeUserData);
+
+    } catch(err) {
+        console.error("Update user error:", err);
+        return res.status(500).json({message: "Failed to update User"});
+    }
+};
+
+
+export const deleteUser= async (req,res)=>{
     const id = req.params.id
     const toeknUserId= req.userId;
-    const body =req.body;
 
     if(id!==toeknUserId){
         res.status(403).json({message:"Not AUthorized!"});
     }
     try{
-
-        const updatedUser= await prisma.user.update({
-            where: {id},
-            data:body
+        await prisma.user.delete({
+            where:{id}
         })
-        res.status(200).json(updatedUser)
-        
-        
-
-    }catch(err){
-
-        res.status(500).json({message:"Failed to get Users!"});
-    }
-}
-
-
-export const deleteUser= async (req,res)=>{
-    try{
+        res.status(200).json({message:"user deleted"});
 
     }catch(err){
 
